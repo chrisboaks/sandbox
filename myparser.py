@@ -1,7 +1,7 @@
 import collections
 import re
 
-Token = collections.namedtuple('Token', ['identifier', 'value', 'line', 'column'])
+Token = collections.namedtuple('Token', ['identifier', 'value', 'line', 'column', 'index'])
 
 
 def tokenize(prison):
@@ -9,16 +9,15 @@ def tokenize(prison):
     token_specs = [
         ('BEGIN', r'BEGIN'),
         ('END', r'END'),
-        ('NUMBER', r'\d+(\.\d*)?'),
-        ('STRING', r'".+"'),
-        ('CONTENT', r'[^\s]+'),
         ('NEWLINE', r'\n'),
+        ('NUMBER', r'\d+(\.\d*)?'),
+        ('CONTENT', r'(".+")|([^\s]+)'),
         ('WHITESPACE', r'\s+'),
     ]
     token_regex = '|'.join('(?P<%s>%s)' % pair for pair in token_specs)
     get_token = re.compile(token_regex).match
     line = 1
-    pos = line_start = 0
+    pos = line_start = index = 0
     matched = get_token(prison)
     while matched is not None:
         identifier = matched.lastgroup
@@ -27,41 +26,40 @@ def tokenize(prison):
             line += 1
         elif identifier != 'WHITESPACE':
             value = matched.group(identifier)
-            if identifier == 'STRING':
-                value = value.strip('"')
-            yield Token(identifier, value, line, matched.start() - line_start)
+            # if identifier == 'STRING':
+            #     value = value.strip('"')
+            yield Token(identifier, value, line, matched.start() - line_start, index)
+            index += 1
         pos = matched.end()
         matched = get_token(prison, pos)
     if pos != len(prison):
         raise RuntimeError('Unexpected character %r on line %d' % (prison[pos], line))
 
-infile = r"mini.prison"
-with open(infile, "r") as prison:
-    tokens = tokenize(prison.read())
-    for token in tokens:
-        print(token)
+
+def get_token_list(infile=r'mini.prison'):
+    with open(infile, "r") as prison:
+        tokens = tokenize(prison.read())
+    return list(tokens)
 
 
 class BaseObj:
     all = []
-    obj_attrs = []
+
+    def __getitem__(self, key):
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            return None
 
     @classmethod
     def filter(cls, **kwargs):
         possibilities = list(cls.all)
         for k, v in kwargs.iteritems():
-            if k not in cls.obj_attrs:
-                raise NameError('Class %s has no attribute %s' % (cls, k))
-            possibilities = filter(lambda x: getattr(x, k) == v, possibilities)
+            possibilities = [p for p in possibilities if p[k] == v]
         return possibilities
 
 
 class Attribute(BaseObj):
-    obj_attrs = ['name', 'value', 'token', 'owner']
-
-    def __repr__(self):
-        return '<Attribute %s:%s>' % (self.name, self.value)
-
     def __init__(self, name, value, token, owner=None):
         self.name = name
         self.value = value
@@ -69,10 +67,14 @@ class Attribute(BaseObj):
         self.owner = owner
         Attribute.all.append(self)
 
+    def __repr__(self):
+        return '<Attribute %s:%s>' % (self.name, self.value)
+
 
 class PrisonObj(BaseObj):
-    def __init__(self, name):
+    def __init__(self, name, owner=None):
         self.name = name
+        self.owner = owner
         self.attributes = []
         PrisonObj.all.append(self)
 
@@ -86,6 +88,11 @@ class PrisonObj(BaseObj):
 
 a = Attribute('a', 3, 'tokena')
 b = Attribute('b', 4, 'tokenb')
+
+
+def parse_tokens(tokens, owner=None):
+    for token in tokens:
+        pass
 
 
 # def parse_tokens(tokens):
