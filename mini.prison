@@ -1,0 +1,34 @@
+
+Version              alpha-31b
+NumCellsX            150
+NumCellsY            120
+OriginX              0
+OriginY              0
+OriginW              150
+OriginH              120
+TimeIndex            43600.604880742496
+TimeWarpFactor       0.7500000
+RandomSeed           32124
+SecondsPlayed        70832
+ObjectId.next        2261655
+EnabledElectricity   true
+EnabledWater         true
+EnabledFood          true
+EnabledMisconduct    true
+EnabledDecay         true
+EnabledVisibility    true
+ObjectsCentreAligned true
+FoodQuantity         3
+BioVersions          4
+CeoLetterRead        true
+BEGIN Cells
+    BEGIN "0 0"        Mat PavingStone  Con 0.000000  END
+    BEGIN "0 1"        Con 0.000000  END
+    BEGIN "0 2"        Con 0.000000  END
+    BEGIN "0 3"        Mat PavingStone  Con 0.000000  END
+    BEGIN "0 4"        Mat PavingStone  Con 0.000000  END
+    BEGIN "0 5"        Mat PavingStone  Con 0.000000  END
+    BEGIN "0 6"        Mat PavingStone  Con 0.000000  END
+    BEGIN "0 7"        Mat PavingStone  Con 0.000000  END
+    BEGIN "0 8"        Mat PavingStone  Con 0.000000  END
+END
